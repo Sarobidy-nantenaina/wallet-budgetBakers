@@ -42,6 +42,25 @@ public class Account {
     return null;
   }
 
+  // Method to get the balance of the account at a specific date and time
+  public double getBalanceAtDateTime(LocalDateTime dateTime) {
+    double calculatedBalance = 0;
+
+    for (Transaction transaction : transactions) {
+      if (transaction.getDateTime().isBefore(dateTime) || transaction.getDateTime().isEqual(dateTime)) {
+        if (transaction.getType() == Transaction.TransactionType.CREDIT) {
+          calculatedBalance += transaction.getAmount();
+        } else {
+          calculatedBalance -= transaction.getAmount();
+        }
+      }
+    }
+
+    return balance + calculatedBalance;
+  }
+
+
+
   public Account(String id, String name, double balance,
                  List<Transaction> transactions, Currency currency) {
     this.id = id;
@@ -49,8 +68,18 @@ public class Account {
     this.balance = balance;
     this.transactions = transactions;
     this.currency = currency;
+  }
+
+  public Account(String id, String name, double balance,
+                 List<Transaction> transactions, Currency currency,AccountType type) {
+    this.id = id;
+    this.name = name;
+    this.balance = balance;
+    this.transactions = transactions;
+    this.currency = currency;
     this.type = type;
   }
+
 
   public String getId() {
     return id;
