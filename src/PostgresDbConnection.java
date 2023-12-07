@@ -3,8 +3,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class PostgresDbConnection {
-
-
   public static Connection getConnection() {
     // Database connection information
     String url = System.getenv("DB_URL");

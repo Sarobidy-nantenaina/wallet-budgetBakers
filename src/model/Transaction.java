@@ -10,12 +10,11 @@ public class Transaction {
   private LocalDateTime dateTime;
   private TransactionType type;
 
-  // Enumeration for the transaction type (Debit or Credit)
   public enum TransactionType {
     DEBIT, CREDIT
   }
 
-  public Transaction(String id, String label, double amount, LocalDateTime dateTime,
+  public Transaction(String id,String label, double amount, LocalDateTime dateTime,
                      TransactionType type) {
     this.id = id;
     this.label = label;

@@ -8,7 +8,6 @@ public class Account {
   private String id;
   private String name;
   private double balance;
-  private LocalDateTime lastUpdateDate;
   private List<Transaction> transactions;
   private Currency currency;
   private AccountType type;
@@ -17,12 +16,37 @@ public class Account {
     BANK, CASH, MOBILE_MONEY
   }
 
-  public Account(String id, String name, double balance, LocalDateTime lastUpdateDate,
-                 List<Transaction> transactions, Currency currency, AccountType type) {
+  public Account performTransaction(String label, double amount, Transaction.TransactionType transactionType) {
+    // Create a new transaction
+    Transaction newTransaction = new Transaction(id,label, amount, LocalDateTime.now(), transactionType);
+
+    // Update the balance based on the account type
+    if (type == AccountType.BANK || (type != AccountType.BANK && balance >= amount)) {
+      // For bank accounts or other accounts with sufficient balance
+      if (transactionType == Transaction.TransactionType.DEBIT) {
+        // For debit transactions, the balance can go negative for bank accounts
+        balance -= amount;
+      } else {
+        // For credit transactions, add to the balance
+        balance += amount;
+      }
+
+      // Add the transaction to the list of transactions
+      transactions.add(newTransaction);
+
+      // Return the updated account information
+      return new Account(id, name, balance, transactions, currency);
+    }
+
+    // If the transaction cannot be performed, return null
+    return null;
+  }
+
+  public Account(String id, String name, double balance,
+                 List<Transaction> transactions, Currency currency) {
     this.id = id;
     this.name = name;
     this.balance = balance;
-    this.lastUpdateDate = lastUpdateDate;
     this.transactions = transactions;
     this.currency = currency;
     this.type = type;
@@ -52,13 +76,6 @@ public class Account {
     this.balance = balance;
   }
 
-  public LocalDateTime getLastUpdateDate() {
-    return lastUpdateDate;
-  }
-
-  public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
-    this.lastUpdateDate = lastUpdateDate;
-  }
 
   public List<Transaction> getTransactions() {
     return transactions;
