@@ -1,21 +1,12 @@
 openapi: 3.0.3
 info:
-  version: "1.0.0 "
+  version: "1.0.0"
   title: "Wallet API"
 servers:
   - url: "http://wallet.com"
-tags:
-  - name: Accounts
-    description: Operations relates to accounts
-  - name: Transactions
-    description: Operation related to transaction
-  - name: Currencies
-    description: Operation related to currencies
 paths:
   /accounts:
     get:
-      tags:
-        - Accounts
       summary: "List all accounts"
       responses:
         200:
@@ -34,8 +25,6 @@ paths:
           $ref: '#/components/responses/500'
     post:
       summary: "Create a new account"
-      tags:
-        - Accounts
       responses:
         200:
           description: "Account created successfully"
@@ -51,9 +40,27 @@ paths:
           $ref: '#/components/responses/500'
 
   /accounts/{accountId}:
+    get:
+      summary: "Get account details by ID"
+      parameters:
+        - name: "accountId"
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Account details retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        400:
+          $ref: '#/components/responses/400'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
     put:
-      tags:
-        - Accounts
       summary: "Update account details by ID"
       parameters:
         - name: "accountId"
@@ -71,19 +78,41 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/Account'
         400:
           $ref: '#/components/responses/400'
         403:
           $ref: '#/components/responses/403'
         500:
           $ref: '#/components/responses/500'
+    delete:
+      summary: "Delete an account by ID"
+      parameters:
+        - name: "accountId"
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Account deleted successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Account deleted successfully"
+        400:
+          $ref: '#/components/responses/400'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+
   /transactions:
     get:
-      tags:
-        - Transactions
       summary: "List all transactions"
       responses:
         200:
@@ -101,8 +130,6 @@ paths:
         500:
           $ref: '#/components/responses/500'
     post:
-      tags:
-        - Transactions
       summary: "Create a new transaction"
       responses:
         200:
@@ -121,8 +148,6 @@ paths:
 
   /transactions/{transactionId}:
     put:
-      tags:
-        - Transactions
       summary: "Update transaction details by ID"
       parameters:
         - name: "transactionId"
@@ -136,23 +161,45 @@ paths:
             $ref: "#/components/schemas/Transaction"
       responses:
         200:
-          description: "Transactions updated successfully"
+          description: "Transaction updated successfully"
           content:
             application/json:
               schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/Transaction'
+                $ref: '#/components/schemas/Transaction'
         400:
           $ref: '#/components/responses/400'
         403:
           $ref: '#/components/responses/403'
         500:
           $ref: '#/components/responses/500'
+    delete:
+      summary: "Delete a transaction by ID"
+      parameters:
+        - name: "transactionId"
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Transaction deleted successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Transaction deleted successfully"
+        400:
+          $ref: '#/components/responses/400'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+
   /currencies:
     get:
-      tags:
-        - Currencies
       summary: "List all currencies"
       responses:
         200:
@@ -170,8 +217,6 @@ paths:
         500:
           $ref: '#/components/responses/500'
     post:
-      tags:
-        - Currencies
       summary: "Create a new currency"
       responses:
         200:
@@ -186,6 +231,57 @@ paths:
           $ref: '#/components/responses/403'
         500:
           $ref: '#/components/responses/500'
+    put:
+      summary: "Update currency details by ID"
+      parameters:
+        - name: "currencyId"
+          in: "path"
+          required: true
+          type: "integer"
+        - name: "currency"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/components/schemas/Currency"
+      responses:
+        200:
+          description: "Currency updated successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Currency'
+        400:
+          $ref: '#/components/responses/400'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+    delete:
+      summary: "Delete a currency by ID"
+      parameters:
+        - name: "currencyId"
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Currency deleted successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Currency deleted successfully"
+        400:
+          $ref: '#/components/responses/400'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+
 components:
   responses:
     400:
@@ -193,80 +289,72 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              type:
-                type: string
-              message:
-                type: string
-          example:
-            type: BadRequestException
-            message: "Bad request"
+            $ref: "#/components/schemas/Error"
     403:
       description: "Forbidden"
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              type:
-                type: string
-              message:
-                type: string
-          example:
-            type: NotAuthorizedException
-            message: "Not authorized"
+            $ref: "#/components/schemas/Error"
     500:
-      description: "Internal server error"
+      description: "Internal Server Error"
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              type:
-                type: string
-              message:
-                type: string
-          example:
-            type: BadRequestException
-            message: "Bad request"
+            $ref: "#/components/schemas/Error"
   schemas:
     Account:
       type: object
       properties:
         id:
           type: integer
-        accountName:
+        name:
           type: string
-        currencyId:
+        balance:
+          type: number
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        currency:
           $ref: "#/components/schemas/Currency"
-        topic:
+        type:
           type: string
-          enum:
-            - ROMANCE
-            - COMEDY
-            - OTHER
     Currency:
       type: object
       properties:
         id:
           type: integer
-        currencyName:
+        name:
           type: string
-        symbol:
+        code:
           type: string
     Transaction:
       type: object
       properties:
         id:
           type: integer
-        value:
-          type: double
-        description:
+        label:
           type: string
-        accountId:
+        amount:
+          type: number
+        dateHeure:
+          type: string
+          format: date-time
+        typeTransaction:
+          type: string
+          enum:
+            - debit
+            - credit
+        account:
           $ref: "#/components/schemas/Account"
+    Error:
+      type: object
+      properties:
         type:
           type: string
-        transactionDate:
-          type: date
+        message:
+          type: string
+      example:
+        type: "BadRequestException"
+        message: "Bad request"
