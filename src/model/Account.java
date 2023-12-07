@@ -129,4 +129,5 @@ public class Account {
   public void setType(AccountType type) {
     this.type = type;
   }
+
 }
