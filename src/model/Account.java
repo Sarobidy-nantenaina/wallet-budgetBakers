@@ -26,9 +26,6 @@ public class Account {
     this(id, name, balance, transactions, currency, null);
   }
 
-  public Account() {
-
-  }
 
   public enum AccountType {
     BANK, CASH, MOBILE_MONEY
@@ -111,12 +108,12 @@ public class Account {
     this.transactions = transactions;
   }
 
-  public Currency.Code getCurrency() {
-    return currency.getCode();
+  public Currency getCurrency() {
+    return currency;
   }
 
-  public void setCurrency(Currency Currency.Currency.Code) {
-    this.currency = currency.getCode();
+  public void setCurrency(Currency Currency) {
+    this.currency = currency;
   }
 
   public AccountType getType() {
