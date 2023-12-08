@@ -1,360 +1,472 @@
-openapi: 3.0.3
-info:
-  version: "1.0.0"
-  title: "Wallet API"
-servers:
-  - url: "http://wallet.com"
-paths:
-  /accounts:
-    get:
-      summary: "List all accounts"
-      responses:
-        200:
-          description: "The list of all accounts"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Account'
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
-    post:
-      summary: "Create a new account"
-      responses:
-        200:
-          description: "Account created successfully"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Account"
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
+  openapi: 3.0.3
+  info:
+    title: Wallet TD1 API
+    version: 1.0.0
+    description: Wallet-budgtes
+  servers:
+    - url: https://Wallet-budgtes.com
+  tags:
+    - name: Accounts
+    - name: Currencies
+    - name: Transactions
+  paths:
+    /account:
+      get:
+        tags:
+          - Accounts
+        summary: Get all accounts
+        description: Retrieve a list of all accounts in the wallet application, optionally filtered by accountName.
+        operationId: getAccountAll
+        responses:
+          '200':
+            description: Returned  list of  Account
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Account'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
 
-  /accounts/{accountId}:
-    get:
-      summary: "Get account details by ID"
-      parameters:
-        - name: "accountId"
-          in: "path"
-          required: true
-          type: "integer"
-      responses:
-        200:
-          description: "Account details retrieved successfully"
+      put:
+        tags:
+          - Accounts
+        summary: Update accounts
+        description: This can only be done by the logged-in accounts.
+        operationId: updateAccountId
+        parameters:
+          - name: accountId
+            in: path
+            description: Name that needs to be update
+            required: true
+            schema:
+              type: string
+        requestBody:
+          description: Update an existent account in the the application wallet.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Account'
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
-    put:
-      summary: "Update account details by ID"
-      parameters:
-        - name: "accountId"
-          in: "path"
-          required: true
-          type: "integer"
-        - name: "account"
-          in: "body"
-          required: true
-          schema:
-            $ref: "#/components/schemas/Account"
-      responses:
-        200:
-          description: "Account updated successfully"
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Account'
+            application/x-www-form-urlencoded:
+              schema:
+                $ref: '#/components/schemas/Account'
+        responses:
+          '200':
+            description: Returned  list of  Account
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Account'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
+
+      post:
+        tags:
+          - Accounts
+        summary: Create Account
+        description: This can only be done by the logged in account.
+        operationId: createAccount
+        requestBody:
+          description: Created account object
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Account'
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
-    delete:
-      summary: "Delete an account by ID"
-      parameters:
-        - name: "accountId"
-          in: "path"
-          required: true
-          type: "integer"
-      responses:
-        200:
-          description: "Account deleted successfully"
-          content:
-            application/json:
+            application/xml:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "Account deleted successfully"
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
+                $ref: '#/components/schemas/Account'
+            application/x-www-form-urlencoded:
+              schema:
+                $ref: '#/components/schemas/Account'
+        responses:
+          '200':
+            description: Returned  one of  Account
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Account'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
 
-  /transactions:
-    get:
-      summary: "List all transactions"
-      responses:
-        200:
-          description: "The list of all transactions"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Transaction'
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
-    post:
-      summary: "Create a new transaction"
-      responses:
-        200:
-          description: "Transaction created successfully"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Transaction"
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
+    /account/{id}:
+      get:
+        tags:
+          - Accounts
+        summary: Get one account by id
+        description: Retrieve a list of one account in the wallet application, optionally filtered by accountName.
+        operationId: getAccountId
+        responses:
+          '200':
+            description: Returned  one of  Account
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Account'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
 
+    /currency:
+      get:
+        tags:
+          - Currencies
+        summary: Get all currencys
+        description: Retrieve a list of all currency in the wallet application, optionally filtered by currency.
+        operationId: getCurrencyAll
+        responses:
+          '200':
+            description: Returned  list of  Currency
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Currency'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
 
-  /transactions/{transactionId}:
-    put:
-      summary: "Update transaction details by ID"
-      parameters:
-        - name: "transactionId"
-          in: "path"
-          required: true
-          type: "integer"
-        - name: "transaction"
-          in: "body"
-          required: true
-          schema:
-            $ref: "#/components/schemas/Transaction"
-      responses:
-        200:
-          description: "Transaction updated successfully"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Transaction'
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
-    delete:
-      summary: "Delete a transaction by ID"
-      parameters:
-        - name: "transactionId"
-          in: "path"
-          required: true
-          type: "integer"
-      responses:
-        200:
-          description: "Transaction deleted successfully"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "Transaction deleted successfully"
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
-
-  /currencies:
-    get:
-      summary: "List all currencies"
-      responses:
-        200:
-          description: "The list of all currencies"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Currency'
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
-    post:
-      summary: "Create a new currency"
-      responses:
-        200:
-          description: "Currency created successfully"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Currency"
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
-    put:
-      summary: "Update currency details by ID"
-      parameters:
-        - name: "currencyId"
-          in: "path"
-          required: true
-          type: "integer"
-        - name: "currency"
-          in: "body"
-          required: true
-          schema:
-            $ref: "#/components/schemas/Currency"
-      responses:
-        200:
-          description: "Currency updated successfully"
+      put:
+        tags:
+          - Currencies
+        summary: Update currencys
+        description: This can only be done by the logged-in currency.
+        operationId: updateCurrencyId
+        parameters:
+          - name: Currency
+            in: path
+            description: Name that needs to be update
+            required: true
+            schema:
+              type: string
+        requestBody:
+          description: Update an existent currency in the application wallet
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Currency'
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
-    delete:
-      summary: "Delete a currency by ID"
-      parameters:
-        - name: "currencyId"
-          in: "path"
-          required: true
-          type: "integer"
-      responses:
-        200:
-          description: "Currency deleted successfully"
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Currency'
+            application/x-www-form-urlencoded:
+              schema:
+                $ref: '#/components/schemas/Currency'
+        responses:
+          '200':
+            description: Returned  list of  Currency
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Currency'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
+
+      post:
+        tags:
+          - Currencies
+        summary: Create Currency
+        description: This can only be done by the logged in currency.
+        operationId: createCurrency
+        requestBody:
+          description: Created currency object
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "Currency deleted successfully"
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        500:
-          $ref: '#/components/responses/500'
+                $ref: '#/components/schemas/Currency'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Currency'
+            application/x-www-form-urlencoded:
+              schema:
+                $ref: '#/components/schemas/Currency'
+        responses:
+          '200':
+            description: Returned  one of  Currency
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Currency'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
 
-components:
-  responses:
-    400:
-      description: "Bad Request"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-    403:
-      description: "Forbidden"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-    500:
-      description: "Internal Server Error"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-  schemas:
-    Account:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        balance:
-          type: number
-        transactions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Transaction'
-        currency:
-          $ref: "#/components/schemas/Currency"
-        type:
-          type: string
-    Currency:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        code:
-          type: string
-    Transaction:
-      type: object
-      properties:
-        id:
-          type: integer
-        label:
-          type: string
-        amount:
-          type: number
-        dateHeure:
-          type: string
-          format: date-time
-        typeTransaction:
-          type: string
-          enum:
-            - debit
-            - credit
-        account:
-          $ref: "#/components/schemas/Account"
-    Error:
-      type: object
-      properties:
-        type:
-          type: string
-        message:
-          type: string
-      example:
-        type: "BadRequestException"
-        message: "Bad request"
+    /currency/{id}:
+      get:
+        tags:
+          - Currencies
+        summary: Get one currency by id
+        description: Retrieve a list of one currency in the wallet application, optionally filtered by currency.
+        operationId: getCurrencyId
+        responses:
+          '200':
+            description: Returned  list of one Currency
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Currency'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
+
+    /transaction:
+      get:
+        tags:
+          - Transactions
+        summary: Get all transactions
+        description: Retrieve a list of all transaction in the wallet application, optionally filtered by transaction.
+        operationId: getTransactionAll
+        responses:
+          '200':
+            description: Returned  list of  Transaction
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Transaction'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
+
+      put:
+        tags:
+          - Transactions
+        summary: Update transactions
+        description: This can only be done by the logged-in transaction.
+        operationId: updateTransactionId
+        parameters:
+          - name: transaction
+            in: path
+            description: Name that needs to be update
+            required: true
+            schema:
+              type: string
+        requestBody:
+          description: Update an existent transaction in the store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+            application/x-www-form-urlencoded:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        responses:
+          '200':
+            description: Returned  list of  Transaction
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Transaction'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
+
+      post:
+        tags:
+          - Transactions
+        summary: Create Transaction
+        description: This can only be done by the logged in transaction.
+        operationId: createTransaction
+        requestBody:
+          description: Created transaction object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+            application/x-www-form-urlencoded:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        responses:
+          '200':
+            description: Returned  one of  Transaction
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Transaction'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
+
+    /transaction/{id}:
+      get:
+        tags:
+          - Transactions
+        summary: Get one transactions by id
+        description: Retrieve a list of one transaction in the wallet application, optionally filtered by transaction.
+        operationId: getTransactionId
+        responses:
+          '200':
+            description: Returned  list of one Transaction
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Transaction'
+          '400':
+            $ref: '#/components/responses/Response400'
+          '403':
+            $ref: '#/components/responses/Response403'
+          '500':
+            $ref: '#/components/responses/Response500'
+
+  components:
+    schemas:
+      Account:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 01
+          name:
+            type: string
+            enum:
+              - CURRENT_ACCOUNT
+              - SAVINGS_ACCOUNT
+          sold:
+            type: number
+            example: 100 000
+          updateAt:
+            type: string
+            format: "date-time"
+          Transaction:
+            type: array
+            items:
+              $ref: "#/components/schemas/Transaction"
+          Currency:
+              $ref: "#/components/schemas/Currency"
+          Type:
+            type: string
+            enum:
+              - BANK
+              - CASH
+              - MOBILE_MONEY
+
+      Currency:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 01
+          name:
+            type: string
+            enum:
+              - ARIARY
+              - EURO
+          code:
+            type: string
+            enum:
+              - AR
+              - EUR
+
+      Transaction:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 01
+          label:
+            type: string
+            example: "Payement"
+          amount:
+            type: number
+            example: 50 000
+          transactionDateTim:
+            type: string
+            format: "date-time"
+          type:
+            type: string
+            enum:
+              - DEBIT
+              - CREDIT
+
+    responses:
+      Response400:
+        description: Bad Request
+        content:
+          application/json:
+            example:
+              statusCode: 400
+              message: "Bad Request"
+              property: "Value of the property in the response body"
+
+      Response403:
+        description: Forbidden
+        content:
+          application/json:
+            example:
+              statusCode: 403
+              message: "Forbidden"
+              property: "Value of the property in the response body"
+
+      Response500:
+        description: Internal Server Error
+        content:
+          application/json:
+            example:
+              statusCode: 500
+              message: "Internal Server Error"
+              property: "Value of the property in the response body"
