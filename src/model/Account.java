@@ -1,6 +1,7 @@
 package model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Account {
@@ -26,14 +27,24 @@ public class Account {
     this(id, name, balance, transactions, currency, null);
   }
 
+  public Account() {
+
+  }
 
   public enum AccountType {
     BANK, CASH, MOBILE_MONEY
   }
 
-  public Account performTransaction(String label, double amount, Transaction.TransactionType transactionType) {
+  public void addTransaction(Transaction transaction) {
+    if (transactions == null) {
+      transactions = new ArrayList<>();
+    }
+    transactions.add(transaction);
+  }
+
+  public Account performTransaction(String id, String label, double amount, Transaction.TransactionType transactionType, Currency currency,String accountId) {
     // Create a new transaction
-    Transaction newTransaction = new Transaction(id,label, amount, LocalDateTime.now(), transactionType);
+    Transaction newTransaction = new Transaction(id, label, amount, LocalDateTime.now(), transactionType,accountId);
 
     // Update the balance based on the account type
     if (type == AccountType.BANK || (type != AccountType.BANK && balance >= amount)) {

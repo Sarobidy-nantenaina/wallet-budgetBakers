@@ -25,15 +25,6 @@ public class Transaction {
     this.account_id = account_id;
   }
 
-  public Transaction(String id, String label, double amount, LocalDateTime dateTime,
-                     TransactionType type) {
-    this.id = id;
-    this.label = label;
-    this.amount = amount;
-    this.dateTime = dateTime;
-    this.type = type;
-  }
-
   public String getId() {
     return id;
   }
