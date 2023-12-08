@@ -2,11 +2,11 @@ package model;
 
 import java.time.LocalDateTime;
 
-public class BalanceHistory {
+  public class BalanceHistory {
 
-  private String account_id;
-  private LocalDateTime dateTimeFrom;
-  private LocalDateTime dateTimeTo;
+    private String account_id;
+    private LocalDateTime dateTimeFrom;
+    private LocalDateTime dateTimeTo;
 
   public BalanceHistory(String account_id, LocalDateTime dateTimeFrom, LocalDateTime dateTimeTo) {
     this.account_id = account_id;
