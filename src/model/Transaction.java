@@ -9,12 +9,23 @@ public class Transaction {
   private double amount;
   private LocalDateTime dateTime;
   private TransactionType type;
+  private String account_id;
 
   public enum TransactionType {
     DEBIT, CREDIT
   }
 
-  public Transaction(String id,String label, double amount, LocalDateTime dateTime,
+  public Transaction(String id, String label, double amount, LocalDateTime dateTime,
+                     TransactionType type, String account_id) {
+    this.id = id;
+    this.label = label;
+    this.amount = amount;
+    this.dateTime = dateTime;
+    this.type = type;
+    this.account_id = account_id;
+  }
+
+  public Transaction(String id, String label, double amount, LocalDateTime dateTime,
                      TransactionType type) {
     this.id = id;
     this.label = label;
@@ -61,5 +72,13 @@ public class Transaction {
 
   public void setType(TransactionType type) {
     this.type = type;
+  }
+
+  public String getAccount_id() {
+    return account_id;
+  }
+
+  public void setAccount_id(String account_id) {
+    this.account_id = account_id;
   }
 }

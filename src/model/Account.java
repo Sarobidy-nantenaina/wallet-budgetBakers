@@ -12,6 +12,24 @@ public class Account {
   private Currency currency;
   private AccountType type;
 
+  public Account(String id, String name, double balance, List<Transaction> transactions,
+                 Currency currency, AccountType type) {
+    this.id = id;
+    this.name = name;
+    this.balance = balance;
+    this.transactions = transactions;
+    this.currency = currency;
+    this.type = type;
+  }
+
+  public Account(String id, String name, double balance, List<Transaction> transactions, Currency currency) {
+    this(id, name, balance, transactions, currency, null);
+  }
+
+  public Account() {
+
+  }
+
   public enum AccountType {
     BANK, CASH, MOBILE_MONEY
   }
@@ -35,7 +53,7 @@ public class Account {
       transactions.add(newTransaction);
 
       // Return the updated account information
-      return new Account(id, name, balance, transactions, currency);
+      return new Account(id,name,balance,transactions,currency);
     }
 
     // If the transaction cannot be performed, return null
@@ -57,27 +75,6 @@ public class Account {
     }
 
     return balance + calculatedBalance;
-  }
-
-
-
-  public Account(String id, String name, double balance,
-                 List<Transaction> transactions, Currency currency) {
-    this.id = id;
-    this.name = name;
-    this.balance = balance;
-    this.transactions = transactions;
-    this.currency = currency;
-  }
-
-  public Account(String id, String name, double balance,
-                 List<Transaction> transactions, Currency currency,AccountType type) {
-    this.id = id;
-    this.name = name;
-    this.balance = balance;
-    this.transactions = transactions;
-    this.currency = currency;
-    this.type = type;
   }
 
 
@@ -114,12 +111,12 @@ public class Account {
     this.transactions = transactions;
   }
 
-  public Currency getCurrency() {
-    return currency;
+  public Currency.Code getCurrency() {
+    return currency.getCode();
   }
 
-  public void setCurrency(Currency currency) {
-    this.currency = currency;
+  public void setCurrency(Currency Currency.Currency.Code) {
+    this.currency = currency.getCode();
   }
 
   public AccountType getType() {

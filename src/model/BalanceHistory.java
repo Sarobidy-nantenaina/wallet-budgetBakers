@@ -37,4 +37,5 @@ public class BalanceHistory {
   public void setDateTimeTo(LocalDateTime dateTimeTo) {
     this.dateTimeTo = dateTimeTo;
   }
+
 }

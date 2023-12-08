@@ -3,10 +3,17 @@ package model;
 public class Currency {
 
   private String id;
-  private String name;
-  private String code;
+  private Name name;
+  private Code code;
 
-  public Currency(String id, String name, String code) {
+  public enum Name {
+    EURO,ARIARY,DOLLAR
+  }
+  public enum Code {
+    EUR,AR,USD
+  }
+
+  public Currency(String id, Name name, Code code) {
     this.id = id;
     this.name = name;
     this.code = code;
@@ -20,19 +27,19 @@ public class Currency {
     this.id = id;
   }
 
-  public String getName() {
+  public Name getName() {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName(Name name) {
     this.name = name;
   }
 
-  public String getCode() {
+  public Code getCode() {
     return code;
   }
 
-  public void setCode(String code) {
+  public void setCode(Code code) {
     this.code = code;
   }
 }
