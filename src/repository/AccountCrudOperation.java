@@ -254,8 +254,8 @@ public class AccountCrudOperation {
     Transaction creditorTransaction = getTransactionById(creditorTransactionId);
 
     // Obtenez les comptes débiteur et créditeur
-    Account debitorAccount = getAccountByTransactionId(debitorTransactionId);
-    Account creditorAccount = getAccountByTransactionId(creditorTransactionId);
+    String debitorAccount = String.valueOf(getAccountByTransactionId(debitorTransactionId));
+    String creditorAccount = String.valueOf(getAccountByTransactionId(creditorTransactionId));
 
     // Obtenez le montant du transfert
     double transferAmount = getTransactionAmount(debitorTransaction);
