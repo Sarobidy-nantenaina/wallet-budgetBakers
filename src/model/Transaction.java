@@ -18,6 +18,10 @@ public class Transaction {
     this.amount = amount;
   }
 
+  public Transaction() {
+
+  }
+
   public enum TransactionType {
     DEBIT, CREDIT
   }

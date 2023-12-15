@@ -1,19 +1,29 @@
 package service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import model.Account;
 import model.Currency;
+import model.CurrencyValue;
 import model.Transaction;
+import model.TransferHistory;
 import repository.AccountCrudOperation;
+import repository.TransactionCrudOperation;
+import repository.TransferHistoryCrudOperation;
 
 public class AccountService {
 
   private final AccountCrudOperation accountCrudOperation;
+  private final TransactionCrudOperation transactionCrudOperation;
+  private final TransferHistoryCrudOperation transferHistoryCrudOperation;
 
-  public AccountService(AccountCrudOperation accountCrudOperation) {
+  public AccountService(AccountCrudOperation accountCrudOperation,TransactionCrudOperation transactionCrudOperation,
+                        TransferHistoryCrudOperation transferHistoryCrudOperation) {
     this.accountCrudOperation = accountCrudOperation;
+    this.transactionCrudOperation = transactionCrudOperation;
+    this.transferHistoryCrudOperation = transferHistoryCrudOperation;
   }
 
   public Account performTransaction(String id, String label, double amount, Transaction.TransactionType transactionType, Currency currency, String accountId) {
@@ -82,41 +92,97 @@ public class AccountService {
   }
 
 
-  public void transferMoney(Account debitorAccount, Account creditorAccount, double amount) {
-    // Vérifiez que le transfert n'est pas effectué vers le même compte
-    if (!debitorAccount.getId().equals(creditorAccount.getId())) {
-      // Vérifiez que les comptes ont la même devise
-      if (debitorAccount.getCurrency() == creditorAccount.getCurrency()) {
-        // Ajoutez une transaction de type débit au compte débiteur
-        Transaction debitorTransaction = new Transaction(
-            UUID.randomUUID().toString(), "Transfer to " + creditorAccount.getName(),
-            -amount, LocalDateTime.now(), Transaction.TransactionType.DEBIT, debitorAccount.getId());
-        debitorAccount.addTransaction(debitorTransaction);
-
-        // Mettez à jour le solde du compte débiteur
-        debitorAccount.setBalance(debitorAccount.getBalance() - amount);
-        accountCrudOperation.update(debitorAccount); // Mettez à jour le compte dans la base de données
-
-        // Ajoutez une transaction de type crédit au compte créditeur
-        Transaction creditorTransaction = new Transaction(
-            UUID.randomUUID().toString(), "Transfer from " + debitorAccount.getName(),
-            amount, LocalDateTime.now(), Transaction.TransactionType.CREDIT, creditorAccount.getId());
-        creditorAccount.addTransaction(creditorTransaction);
-
-        // Mettez à jour le solde du compte créditeur
-        creditorAccount.setBalance(creditorAccount.getBalance() + amount);
-        accountCrudOperation.update(creditorAccount); // Mettez à jour le compte dans la base de données
-
-        // Enregistrez l'historique du transfert dans la table TransferHistory
-        accountCrudOperation.saveTransferHistory(debitorTransaction.getId(), creditorTransaction.getId(), LocalDateTime.now());
-      } else {
-        // Gérez le cas où les comptes n'ont pas la même devise
-        System.out.println("Impossible de transférer de l'argent entre des comptes de devises différentes.");
-      }
-    } else {
-      // Gérez le cas où le transfert est effectué vers le même compte
-      System.out.println("Impossible de transférer de l'argent vers le même compte.");
+  public void transferMoney(String accountIdDebitor, String accountIdCreditor, double amount, LocalDateTime transferDate) {
+    // Vérifier que les paramètres sont valides
+    if (accountIdDebitor == null || accountIdCreditor == null || amount <= 0 || transferDate == null) {
+      throw new IllegalArgumentException("Les paramètres ne doivent pas être null ou non valides");
     }
+
+    // Vérifier que les comptes sont différents
+    if (accountIdDebitor.equals(accountIdCreditor)) {
+      throw new IllegalArgumentException("Un compte ne peut pas effectuer un transfert vers lui-même");
+    }
+
+    Account accountDebitor = accountCrudOperation.findAccountById(accountIdDebitor);
+    Account accountCreditor = accountCrudOperation.findAccountById(accountIdCreditor);
+
+    // Vérifier que le compte débiteur dispose d'un solde suffisant
+    double balanceDebitor = accountDebitor.getBalance();
+    if (balanceDebitor < amount) {
+      throw new IllegalArgumentException("Le compte débiteur ne dispose pas d'un solde suffisant");
+    }
+
+
+    // Vérifier que les comptes ont des devises différentes
+    if (!accountDebitor.getCurrency().equals(accountCreditor.getCurrency())) {
+      // Effectuer la conversion du montant en Ariary
+      double exchangeRate = getExchangeRate(transferDate);
+      // Effectuer la conversion du montant en Ariary
+      double amountInAriary = amount * exchangeRate;
+
+      // Mettre à jour les soldes des comptes
+      accountDebitor.setBalance(accountDebitor.getBalance()-amount);
+      accountCreditor.setBalance(accountCreditor.getBalance() + amountInAriary);
+
+      // Continuer le processus de transfert avec le montant converti en Ariary
+      Transaction transactionDebitor = new Transaction();
+      transactionDebitor.setAccount_id(accountIdDebitor);
+      transactionDebitor.setAmount(amountInAriary);
+      transactionDebitor.setType(Transaction.TransactionType.DEBIT);
+      transactionDebitor.setLabel("Transfert vers le compte " + accountIdCreditor);
+      transactionCrudOperation.save(transactionDebitor);
+
+      Transaction transactionCreditor = new Transaction();
+      transactionCreditor.setAccount_id(accountIdCreditor);
+      transactionCreditor.setAmount(amountInAriary);
+      transactionCreditor.setType(Transaction.TransactionType.CREDIT);
+      transactionCreditor.setLabel("Transfert depuis le compte " + accountIdDebitor);
+      transactionCrudOperation.save(transactionCreditor);
+
+      TransferHistory transferHistory = new TransferHistory();
+      transferHistory.setDebitorTransactionId(accountIdDebitor);
+      transferHistory.setCreditorTransactionId(accountIdCreditor);
+      transferHistory.setTransferAmount(amount);
+      transferHistory.setTransferDate(transferDate);
+      transferHistoryCrudOperation.save(transferHistory);
+    } else {
+      // Continuer le processus de transfert avec le montant en Euros
+      Transaction transactionDebitor = new Transaction();
+      transactionDebitor.setAccount_id(accountIdDebitor);
+      transactionDebitor.setAmount(amount);
+      transactionDebitor.setType(Transaction.TransactionType.DEBIT);
+      transactionDebitor.setLabel("Transfert vers le compte " + accountIdCreditor);
+      transactionCrudOperation.save(transactionDebitor);
+
+      Transaction transactionCreditor = new Transaction();
+      transactionCreditor.setAccount_id(accountIdCreditor);
+      transactionCreditor.setAmount(amount);
+      transactionCreditor.setType(Transaction.TransactionType.CREDIT);
+      transactionCreditor.setLabel("Transfert depuis le compte " + accountIdDebitor);
+      transactionCrudOperation.save(transactionCreditor);
+
+      TransferHistory transferHistory = new TransferHistory();
+      transferHistory.setDebitorTransactionId(accountIdDebitor);
+      transferHistory.setCreditorTransactionId(accountIdCreditor);
+      transferHistory.setTransferAmount(amount);
+      transferHistory.setTransferDate(transferDate);
+      transferHistoryCrudOperation.save(transferHistory);
+    }
+  }
+
+
+
+
+  public double getExchangeRate(LocalDateTime transferDate) {
+    List<CurrencyValue> currencyValues = new ArrayList<>();
+    for (CurrencyValue cv : currencyValues) {
+      if (cv.getDateValue().equals(transferDate)) {
+        return cv.getValue();
+      }
+    }
+
+    // Si aucune valeur trouvée, lever une exception
+    throw new IllegalArgumentException("Le taux de change n'est pas disponible pour la date " + transferDate);
   }
 
 }
