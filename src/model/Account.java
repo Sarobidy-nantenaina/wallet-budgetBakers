@@ -7,7 +7,7 @@ import java.util.List;
 public class Account {
 
   private String id;
-  private String name;
+  private String name;  
   private double balance;
   private List<Transaction> transactions;
   private Currency currency;

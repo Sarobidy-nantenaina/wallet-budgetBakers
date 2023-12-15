@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS "Account" (
-    id VARCHAR(50) PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     balance DOUBLE PRECISION,
     currency_id INT,
