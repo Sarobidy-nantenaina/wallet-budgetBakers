@@ -26,6 +26,10 @@ public class TransferHistory {
       this.transferDate = transferDate;
   }
 
+  public TransferHistory() {
+
+  }
+
   public String getDebitorTransactionId() {
     return debitorTransactionId;
   }

@@ -13,6 +13,12 @@ import model.Transaction;
 
 public class BalanceHistoryCrudOperation {
 
+  private final AccountCrudOperation accountCrudOperation;
+
+  public BalanceHistoryCrudOperation(AccountCrudOperation accountCrudOperation) {
+    this.accountCrudOperation = accountCrudOperation;
+  }
+
   PostgresDbConnection dbConnection = new PostgresDbConnection();
   Connection connection = dbConnection.getConnection();
 
@@ -81,7 +87,7 @@ public class BalanceHistoryCrudOperation {
     }
 
     // Récupération des transactions du compte
-    List<Transaction> transactions = findTransactionsByAccountId(accountId);
+    List<Transaction> transactions = accountCrudOperation.findTransactionsByAccountId(accountId);
 
     // Création d'une liste pour stocker l'historique du solde
     List<BalanceHistory> balanceHistory = new ArrayList<>();
@@ -116,30 +122,6 @@ public class BalanceHistoryCrudOperation {
 
     // Retourner la liste
     return balanceHistory;
-  }
-
-  public List<Transaction> findTransactionsByAccountId(String accountId) {
-    String sql = "SELECT * FROM transactions WHERE account_id = ?";
-    List<Transaction> transactions = new ArrayList<>();
-
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-      preparedStatement.setString(1, accountId);
-      ResultSet resultSet = preparedStatement.executeQuery();
-
-      while (resultSet.next()) {
-        String transactionId = resultSet.getString("transaction_id");
-        LocalDateTime date = resultSet.getTimestamp("date").toLocalDateTime();
-        Transaction.TransactionType type = Transaction.TransactionType.valueOf(resultSet.getString("type"));
-        double amount = resultSet.getDouble("amount");
-
-        transactions.add(new Transaction(transactionId, date, type, amount));
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      // Gérer l'exception
-    }
-
-    return transactions;
   }
 
 
