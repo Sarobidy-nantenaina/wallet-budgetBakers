@@ -11,6 +11,13 @@ public class Transaction {
   private TransactionType type;
   private String account_id;
 
+  public Transaction(String transactionId, LocalDateTime date, TransactionType type, double amount) {
+    this.id = transactionId;
+    this.dateTime = date;
+    this.type = type;
+    this.amount = amount;
+  }
+
   public enum TransactionType {
     DEBIT, CREDIT
   }

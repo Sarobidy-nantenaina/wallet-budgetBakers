@@ -133,7 +133,7 @@ public class AccountCrudOperation {
         // Ajoutez la transaction à la liste des transactions du compte
         account.getTransactions().add(newTransaction);
 
-        // Mettez à jour la devise du compte
+        // Mettez à jour la   devise du compte
         account.setCurrency(currency);
 
         // Mettez à jour le compte dans la base de données
@@ -269,6 +269,29 @@ public class AccountCrudOperation {
   }
 
 
+  public List<Transaction> findTransactionsByAccountId(String accountId) {
+    String sql = "SELECT * FROM transactions WHERE account_id = ?";
+    List<Transaction> transactions = new ArrayList<>();
+
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+      preparedStatement.setString(1, accountId);
+      ResultSet resultSet = preparedStatement.executeQuery();
+
+      while (resultSet.next()) {
+        String transactionId = resultSet.getString("transaction_id");
+        LocalDateTime date = resultSet.getTimestamp("date").toLocalDateTime();
+        Transaction.TransactionType type = Transaction.TransactionType.valueOf(resultSet.getString("type"));
+        double amount = resultSet.getDouble("amount");
+
+        transactions.add(new Transaction(transactionId, date, type, amount));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      // Gérer l'exception
+    }
+
+    return transactions;
+  }
 
   public Account getAccountByTransactionId(String transactionId) {
     try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM account WHERE id IN (SELECT account_id FROM transaction WHERE transaction_id = ?)")) {
