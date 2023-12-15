@@ -42,31 +42,6 @@ public class Account {
     transactions.add(transaction);
   }
 
-  public Account performTransaction(String id, String label, double amount, Transaction.TransactionType transactionType, Currency currency,String accountId) {
-    // Create a new transaction
-    Transaction newTransaction = new Transaction(id, label, amount, LocalDateTime.now(), transactionType,accountId);
-
-    // Update the balance based on the account type
-    if (type == AccountType.BANK || (type != AccountType.BANK && balance >= amount)) {
-      // For bank accounts or other accounts with sufficient balance
-      if (transactionType == Transaction.TransactionType.DEBIT) {
-        // For debit transactions, the balance can go negative for bank accounts
-        balance -= amount;
-      } else {
-        // For credit transactions, add to the balance
-        balance += amount;
-      }
-
-      // Add the transaction to the list of transactions
-      transactions.add(newTransaction);
-
-      // Return the updated account information
-      return new Account(id,name,balance,transactions,currency);
-    }
-
-    // If the transaction cannot be performed, return null
-    return null;
-  }
 
   // Method to get the balance of the account at a specific date and time
   public double getBalanceAtDateTime(LocalDateTime dateTime) {

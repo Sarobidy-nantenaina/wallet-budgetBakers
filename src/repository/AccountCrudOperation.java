@@ -133,7 +133,7 @@ public class AccountCrudOperation {
         // Ajoutez la transaction à la liste des transactions du compte
         account.getTransactions().add(newTransaction);
 
-        // Mettez à jour la devise du compte
+        // Mettez à jour la   devise du compte
         account.setCurrency(currency);
 
         // Mettez à jour le compte dans la base de données
