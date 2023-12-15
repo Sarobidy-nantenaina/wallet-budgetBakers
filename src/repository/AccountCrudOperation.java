@@ -111,42 +111,6 @@ public class AccountCrudOperation {
     }
   }
 
-  public Account performTransaction(String id, String label, double amount, Transaction.TransactionType transactionType, Currency currency,String accountId) {
-    // Obtenez le compte à partir de la base de données
-    Account account = findAccountById(accountId);
-
-    if (account != null) {
-      // Créez une nouvelle transaction
-      Transaction newTransaction = new Transaction(id, label, amount, LocalDateTime.now(), transactionType,accountId);
-
-      // Mettez à jour le solde en fonction du type de transaction
-      if (account.getType() == Account.AccountType.BANK || (account.getType() != Account.AccountType.BANK && account.getBalance() >= amount)) {
-        // Pour les comptes bancaires ou autres comptes avec un solde suffisant
-        if (transactionType == Transaction.TransactionType.DEBIT) {
-          // Pour les transactions de débit, le solde peut devenir négatif pour les comptes bancaires
-          account.setBalance(account.getBalance() - amount);
-        } else {
-          // Pour les transactions de crédit, ajoutez au solde
-          account.setBalance(account.getBalance() + amount);
-        }
-
-        // Ajoutez la transaction à la liste des transactions du compte
-        account.getTransactions().add(newTransaction);
-
-        // Mettez à jour la   devise du compte
-        account.setCurrency(currency);
-
-        // Mettez à jour le compte dans la base de données
-        update(account);
-
-        // Retournez les informations mises à jour sur le compte
-        return account;
-      }
-    }
-
-    return null;
-  }
-
 
   public Account findAccountById(String accountId) {
     try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM account WHERE id = ?")) {
@@ -164,44 +128,7 @@ public class AccountCrudOperation {
     return null;
   }
 
-  public void transferMoney(Account debitorAccount, Account creditorAccount, double amount) {
-    // Vérifiez que le transfert n'est pas effectué vers le même compte
-    if (!debitorAccount.getId().equals(creditorAccount.getId())) {
-      // Vérifiez que les comptes ont la même devise
-      if (debitorAccount.getCurrency() == creditorAccount.getCurrency()) {
-        // Ajoutez une transaction de type débit au compte débiteur
-        Transaction debitorTransaction = new Transaction(
-            UUID.randomUUID().toString(), "Transfer to " + creditorAccount.getName(),
-            -amount, LocalDateTime.now(), Transaction.TransactionType.DEBIT, debitorAccount.getId());
-        debitorAccount.addTransaction(debitorTransaction);
-
-        // Mettez à jour le solde du compte débiteur
-        debitorAccount.setBalance(debitorAccount.getBalance() - amount);
-        update(debitorAccount); // Mettez à jour le compte dans la base de données
-
-        // Ajoutez une transaction de type crédit au compte créditeur
-        Transaction creditorTransaction = new Transaction(
-            UUID.randomUUID().toString(), "Transfer from " + debitorAccount.getName(),
-            amount, LocalDateTime.now(), Transaction.TransactionType.CREDIT, creditorAccount.getId());
-        creditorAccount.addTransaction(creditorTransaction);
-
-        // Mettez à jour le solde du compte créditeur
-        creditorAccount.setBalance(creditorAccount.getBalance() + amount);
-        update(creditorAccount); // Mettez à jour le compte dans la base de données
-
-        // Enregistrez l'historique du transfert dans la table TransferHistory
-        saveTransferHistory(debitorTransaction.getId(), creditorTransaction.getId(), LocalDateTime.now());
-      } else {
-        // Gérez le cas où les comptes n'ont pas la même devise
-        System.out.println("Impossible de transférer de l'argent entre des comptes de devises différentes.");
-      }
-    } else {
-      // Gérez le cas où le transfert est effectué vers le même compte
-      System.out.println("Impossible de transférer de l'argent vers le même compte.");
-    }
-  }
-
-  private void saveTransferHistory(String debitorTransactionId, String creditorTransactionId, LocalDateTime transferDate) {
+  public void saveTransferHistory(String debitorTransactionId, String creditorTransactionId, LocalDateTime transferDate) {
     try (PreparedStatement preparedStatement = connection.prepareStatement(
         "INSERT INTO TransferHistory (ID, debitor_transaction_id, creditor_transaction_id, transfer_date) VALUES (?, ?, ?, ?)")) {
       preparedStatement.setString(1, UUID.randomUUID().toString());
@@ -240,6 +167,30 @@ public class AccountCrudOperation {
     }
 
     return transferHistoryList;
+  }
+
+  public List<Transaction> findTransactionsByAccountId(String accountId) {
+    String sql = "SELECT * FROM transactions WHERE account_id = ?";
+    List<Transaction> transactions = new ArrayList<>();
+
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+      preparedStatement.setString(1, accountId);
+      ResultSet resultSet = preparedStatement.executeQuery();
+
+      while (resultSet.next()) {
+        String transactionId = resultSet.getString("transaction_id");
+        LocalDateTime date = resultSet.getTimestamp("date").toLocalDateTime();
+        Transaction.TransactionType type = Transaction.TransactionType.valueOf(resultSet.getString("type"));
+        double amount = resultSet.getDouble("amount");
+
+        transactions.add(new Transaction(transactionId, date, type, amount));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      // Gérer l'exception
+    }
+
+    return transactions;
   }
 
 
