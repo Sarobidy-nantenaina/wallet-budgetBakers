@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import model.Category;
 import model.Transaction;
 
 public class TransactionCrudOperation {
@@ -17,7 +19,7 @@ public class TransactionCrudOperation {
 
   public Transaction save(Transaction toSave) {
     try (PreparedStatement preparedStatement = connection.prepareStatement(
-        "INSERT INTO transaction (id, label, amount, datetime, transaction_type, account_id) VALUES (?, ?, ?, ?, ?, ?)")) {
+        "INSERT INTO transaction (id, label, amount, datetime, transaction_type, account_id, categoryId) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
 
       preparedStatement.setString(1, toSave.getId());
       preparedStatement.setString(2, toSave.getLabel());
@@ -25,6 +27,7 @@ public class TransactionCrudOperation {
       preparedStatement.setTimestamp(4, java.sql.Timestamp.valueOf(toSave.getDateTime()));
       preparedStatement.setString(5, toSave.getType().name());
       preparedStatement.setString(6, toSave.getAccount_id());
+      preparedStatement.setString(7, toSave.getCategory().getCategoryId());
 
       preparedStatement.executeUpdate();
 
@@ -35,27 +38,27 @@ public class TransactionCrudOperation {
     return toSave;
   }
 
-  public List<Transaction> findAll() {
-    List<Transaction> transactions = new ArrayList<>();
-
-    try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM transaction");
-         ResultSet resultSet = preparedStatement.executeQuery()) {
-
-      while (resultSet.next()) {
-        Transaction transaction = mapResultSetToTransaction(resultSet);
-        transactions.add(transaction);
-      }
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-
-    return transactions;
-  }
+//  public List<Transaction> findAll() {
+//    List<Transaction> transactions = new ArrayList<>();
+//
+//    try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM transaction");
+//         ResultSet resultSet = preparedStatement.executeQuery()) {
+//
+//      while (resultSet.next()) {
+//        Transaction transaction = mapResultSetToTransaction(resultSet);
+//        transactions.add(transaction);
+//      }
+//
+//    } catch (SQLException e) {
+//      e.printStackTrace();
+//    }
+//
+//    return transactions;
+//  }
 
   public Transaction update(Transaction toUpdate) {
     try (PreparedStatement preparedStatement = connection.prepareStatement(
-        "UPDATE transaction SET label = ?, amount = ?, datetime = ?, transaction_type = ?, account_id = ? WHERE id = ?")) {
+            "UPDATE transaction SET label = ?, amount = ?, datetime = ?, transaction_type = ?, account_id = ?, categoryId = ? WHERE id = ?")) {
 
       preparedStatement.setString(1, toUpdate.getLabel());
       preparedStatement.setDouble(2, toUpdate.getAmount());
@@ -63,6 +66,8 @@ public class TransactionCrudOperation {
       preparedStatement.setString(4, toUpdate.getType().name());
       preparedStatement.setString(5, toUpdate.getAccount_id());
       preparedStatement.setString(6, toUpdate.getId());
+      preparedStatement.setString(7, toUpdate.getCategory().getCategoryId()); // Ajoutez la catégorie à la requête SQL
+
 
       int rowsUpdated = preparedStatement.executeUpdate();
 
@@ -77,16 +82,17 @@ public class TransactionCrudOperation {
       return null;
     }
   }
-
-  private Transaction mapResultSetToTransaction(ResultSet resultSet) throws SQLException {
-    String id = resultSet.getString("id");
-    String label = resultSet.getString("label");
-    double amount = resultSet.getDouble("amount");
-    LocalDateTime dateTime = resultSet.getTimestamp("datetime").toLocalDateTime();
-    Transaction.TransactionType type = Transaction.TransactionType.valueOf(resultSet.getString("transaction_type"));
-    String accountId = resultSet.getString("account_id");
-
-    return new Transaction(id, label, amount, dateTime, type, accountId);
-  }
-
 }
+
+//  private Transaction mapResultSetToTransaction(ResultSet resultSet) throws SQLException {
+//    String id = resultSet.getString("id");
+//    String label = resultSet.getString("label");
+//    double amount = resultSet.getDouble("amount");
+//    LocalDateTime dateTime = resultSet.getTimestamp("datetime").toLocalDateTime();
+//    Transaction.TransactionType type = Transaction.TransactionType.valueOf(resultSet.getString("transaction_type"));
+//    String accountId = resultSet.getString("account_id");
+//
+//    return new Transaction(id, label, amount, dateTime, type, accountId,category);
+//  }
+//
+//}

@@ -9,10 +9,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import model.Account;
-import model.Currency;
-import model.Transaction;
-import model.TransferHistory;
+
+import model.*;
 
 public class AccountCrudOperation {
 
@@ -111,13 +109,13 @@ public class AccountCrudOperation {
     }
   }
 
-  public Account performTransaction(String id, String label, double amount, Transaction.TransactionType transactionType, Currency currency,String accountId) {
+  public Account performTransaction(String id, String label, double amount, Transaction.TransactionType transactionType, Currency currency,String accountId, Category category ) {
     // Obtenez le compte à partir de la base de données
     Account account = findAccountById(accountId);
 
     if (account != null) {
       // Créez une nouvelle transaction
-      Transaction newTransaction = new Transaction(id, label, amount, LocalDateTime.now(), transactionType,accountId);
+      Transaction newTransaction = new Transaction(id, label, amount, LocalDateTime.now(), transactionType,accountId,category);
 
       // Mettez à jour le solde en fonction du type de transaction
       if (account.getType() == Account.AccountType.BANK || (account.getType() != Account.AccountType.BANK && account.getBalance() >= amount)) {
@@ -163,8 +161,7 @@ public class AccountCrudOperation {
 
     return null;
   }
-
-  public void transferMoney(Account debitorAccount, Account creditorAccount, double amount) {
+  public void transferMoney(Account debitorAccount, Account creditorAccount, double amount, Category category) {
     // Vérifiez que le transfert n'est pas effectué vers le même compte
     if (!debitorAccount.getId().equals(creditorAccount.getId())) {
       // Vérifiez que les comptes ont la même devise
@@ -172,7 +169,7 @@ public class AccountCrudOperation {
         // Ajoutez une transaction de type débit au compte débiteur
         Transaction debitorTransaction = new Transaction(
             UUID.randomUUID().toString(), "Transfer to " + creditorAccount.getName(),
-            -amount, LocalDateTime.now(), Transaction.TransactionType.DEBIT, debitorAccount.getId());
+            -amount, LocalDateTime.now(), Transaction.TransactionType.DEBIT, debitorAccount.getId(), category);
         debitorAccount.addTransaction(debitorTransaction);
 
         // Mettez à jour le solde du compte débiteur
@@ -182,7 +179,7 @@ public class AccountCrudOperation {
         // Ajoutez une transaction de type crédit au compte créditeur
         Transaction creditorTransaction = new Transaction(
             UUID.randomUUID().toString(), "Transfer from " + debitorAccount.getName(),
-            amount, LocalDateTime.now(), Transaction.TransactionType.CREDIT, creditorAccount.getId());
+            amount, LocalDateTime.now(), Transaction.TransactionType.CREDIT, creditorAccount.getId(),category);
         creditorAccount.addTransaction(creditorTransaction);
 
         // Mettez à jour le solde du compte créditeur
@@ -344,8 +341,10 @@ public class AccountCrudOperation {
     Transaction.TransactionType type = (typeString != null) ? Transaction.TransactionType.valueOf(typeString) : null;
     String accountId = resultSet.getString("account_id");
 
+
+
     // Créez et retournez un objet Transaction
-    return new Transaction(id, label, amount, dateTime, type, accountId);
+    return new Transaction(id, label, amount, dateTime, type, accountId ,category);
   }
 
 

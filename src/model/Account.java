@@ -42,9 +42,9 @@ public class Account {
     transactions.add(transaction);
   }
 
-  public Account performTransaction(String id, String label, double amount, Transaction.TransactionType transactionType, Currency currency,String accountId) {
+  public Account performTransaction(String id, String label, double amount, Transaction.TransactionType transactionType, Currency currency,String accountId, Category category) {
     // Create a new transaction
-    Transaction newTransaction = new Transaction(id, label, amount, LocalDateTime.now(), transactionType,accountId);
+    Transaction newTransaction = new Transaction(id, label, amount, LocalDateTime.now(), transactionType,accountId, category);
 
     // Update the balance based on the account type
     if (type == AccountType.BANK || (type != AccountType.BANK && balance >= amount)) {
